@@ -1,18 +1,4 @@
-############################################################################################################################
-###                                                                                                                      ###
-###  	Script by Terry Munro -                                                                                          ###
-###     Technical Blog -               http://365admin.com.au                                                            ###
-###     Webpage -                      https://www.linkedin.com/in/terry-munro/                                          ###
-###     TechNet Gallery Scripts -      http://tinyurl.com/TerryMunroTechNet                                              ###
-###                                                                                                                      ###
-###     TechNet Download link -        https://gallery.technet.microsoft.com/Mailbox-Permission-Pack-9e0f2ace            ###
-###                                                                                                                      ###
-###     Support -                      http://www.365admin.com.au/2018/01/powershell-scripts-to-report-on-mailbox.html   ###
-###                                                                                                                      ###
-###     Version 1.0 - 03/01/2018                                                                                         ### 
-###                                                                                                                      ###
-###                                                                                                                      ###
-############################################################################################################################
+#
 
 ###   Notes
 ###
@@ -35,5 +21,5 @@ $Mailboxes | Get-ADPermission | where {($_.ExtendedRights -like "*Send-As*") -an
 
 $Mailboxes | Where-Object {$_.GrantSendOnBehalfTo} | select Name,@{Name='GrantSendOnBehalfTo';Expression={($_ | Select -ExpandProperty GrantSendOnBehalfTo | Select -ExpandProperty Name) -join ","}} | export-csv -notypeinformation "$logpath\MailboxSendOnBehalf-LocalExchange.csv"
 
-$Mailboxes | Get-MailboxPermission | Where { ($_.IsInherited -eq $False) -and -not ($_.User -like ìNT AUTHORITY\SELFî) -and -not ($_.User -like '*Discovery Management*') } | Select Identity, user | Export-Csv -NoTypeInformation "$logpath\MailboxFullAccess-LocalExchange.csv"
+$Mailboxes | Get-MailboxPermission | Where { ($_.IsInherited -eq $False) -and -not ($_.User -like ‚ÄúNT AUTHORITY\SELF‚Äù) -and -not ($_.User -like '*Discovery Management*') } | Select Identity, user | Export-Csv -NoTypeInformation "$logpath\MailboxFullAccess-LocalExchange.csv"
 
