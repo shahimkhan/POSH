@@ -5,19 +5,17 @@
         Date:   10-Apr-2017  
         .DESCRIPTION 
          The script accomplished the following tasks:
-			1. Move Audit trace files older than 3 days from the default SQL data directory to \\EQXNAS01\DFS\IT\SQLTraces
+			1. Move Audit trace files older than 3 days from the default SQL data directory to \\eqxim01\SQLTraces
 			2. Use 7-zip to compress the recently copied files into a single highly compressed archive
 			3. delete the moved tracefiles & clear the space.
- 
-        
   
 #> 
     [CmdletBinding()] 
     Param 
     ( 
         [Parameter(Mandatory=$false)][ValidateScript({ Test-Path $_ -PathType Container })] 
-        [string]$LogPath="E:\Program Files\Microsoft SQL Server\MSSQL10_50.SQLSAPB1\MSSQL\DATA\", 
-        [Parameter(Mandatory=$false)][string]$ArchivePath="\\EQXNAS01\dfs\IT\SQLTraces\", 
+        [string]$LogPath="E:\Program Files\Microsoft SQL Server\MSSQL10_50.SQLSAPB1\MSSQL\DATA", 
+        [Parameter(Mandatory=$false)][string]$ArchivePath="\\eqxim01\SQLTraces\", 
         [Parameter(Mandatory=$false)][int]$daysBack="2" 
     ) 
  
@@ -26,7 +24,7 @@
        
 		$tz = "C:\Program Files\7-Zip\7z.exe" 
         Set-Alias sz $tz 
-        $staging = "\\EQXNAS01\dfs\IT\SQLTraces\DATA\*.trc" 
+        $staging = "\\eqxim01\SQLTraces\DATA\*.trc" 
         Write-Verbose "Checking to see if archive folder exists" 
         if (!(Test-Path $Archivepath)) { 
             Write-Verbose "Archive folder doesn't exist. It will be created now" 
@@ -44,6 +42,8 @@
         $refDate=(Get-Date).AddDays(-$daysBack) 
         $oldFiles=Get-ChildItem -filter *.trc -Path $LogPath | where {$_.LastWriteTime -lt "$refDate"} 
         foreach ($oldFile in $oldFiles) { 
+                    Write-Output "Adding Permissions for $oldFile" 
+                    cacls $oldFile /E /G mesoblastltd\labtech:F /T 
         $parentFolder = $oldFile.Directory.Name 
         $ArchiveFolder=join-path -path $ArchivePath -childpath $parentFolder 
              if (!(Test-Path $ArchiveFolder)) { 
@@ -70,7 +70,7 @@
     { 
      $nodename = [system.environment]::MachineName
      $date = (Get-Date).tostring("dd-MM-yyyy")
-     $topath = $ArchivePath + $nodename+$date+"_SQLTrace.zip"
+     $topath = $ArchivePath + $nodename + "_" + $date + "_SQLTrace.zip"
     sz a -mmt=off $topath $staging
     Remove-Item $staging -Force 
     } 
